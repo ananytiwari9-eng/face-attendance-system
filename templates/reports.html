@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        FaceAttend - Reports
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for(
+            'static',
+            filename='css/style.css'
+        ) }}"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                FA
+            </div>
+
+            <div>
+
+                <h2>
+                    FaceAttend
+                </h2>
+
+                <span>
+                    Attendance System
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav>
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="nav-item"
+            >
+                <span>⌂</span>
+                Dashboard
+            </a>
+
+
+            <a
+                href="{{ url_for('students') }}"
+                class="nav-item"
+            >
+                <span>👤</span>
+                Students
+            </a>
+
+
+            <a
+                href="{{ url_for('attendance') }}"
+                class="nav-item"
+            >
+                <span>✓</span>
+                Attendance
+            </a>
+
+
+            <a
+                href="{{ url_for('reports') }}"
+                class="nav-item active"
+            >
+                <span>▣</span>
+                Reports
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a
+                href="#"
+                class="nav-item"
+            >
+                <span>⚙</span>
+                Settings
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- ================= TOPBAR ================= -->
+
+        <header class="topbar">
+
+            <div>
+
+                <p class="small-text">
+                    FaceAttend
+                </p>
+
+                <h1>
+                    Reports
+                </h1>
+
+            </div>
+
+
+            <div class="profile">
+
+                <div class="avatar">
+                    A
+                </div>
+
+                <div>
+
+                    <strong>
+                        Admin
+                    </strong>
+
+                    <small>
+                        Administrator
+                    </small>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= SUMMARY ================= -->
+
+        <section class="stats">
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    👥
+                </div>
+
+                <div>
+
+                    <p>
+                        Students
+                    </p>
+
+                    <h2>
+                        {{ total_students }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <p>
+                        Present
+                    </p>
+
+                    <h2>
+                        {{ total_present }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    ○
+                </div>
+
+                <div>
+
+                    <p>
+                        Absent
+                    </p>
+
+                    <h2>
+                        {{ total_absent }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    %
+                </div>
+
+                <div>
+
+                    <p>
+                        Overall Rate
+                    </p>
+
+                    <h2>
+                        {{ overall_percentage }}%
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= FILTER CARD ================= -->
+
+        <section
+            class="card"
+            style="margin-top:20px;"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Report Filters
+                    </h2>
+
+                    <p>
+                        Filter your attendance report
+                    </p>
+
+                </div>
+
+
+                <!-- EXPORT BUTTON -->
+
+                <a
+                    href="{{ url_for(
+                        'export_report',
+                        search=search,
+                        from_date=from_date,
+                        to_date=to_date
+                    ) }}"
+                    class="primary-btn"
+                    style="
+                        text-decoration:none;
+                        display:inline-block;
+                    "
+                >
+
+                    📥 Export CSV
+
+                </a>
+
+            </div>
+
+
+            <!-- FILTER FORM -->
+
+            <form
+                method="GET"
+                action="{{ url_for('reports') }}"
+                style="
+                    display:flex;
+                    gap:12px;
+                    flex-wrap:wrap;
+                    align-items:center;
+                    margin-top:20px;
+                "
+            >
+
+
+                <!-- SEARCH -->
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search }}"
+                    placeholder="Search ID or student name"
+                    style="
+                        padding:12px 14px;
+                        border:1px solid #ddd;
+                        border-radius:8px;
+                        min-width:230px;
+                    "
+                >
+
+
+                <!-- FROM DATE -->
+
+                <input
+                    type="date"
+                    name="from_date"
+                    value="{{ from_date }}"
+                    style="
+                        padding:12px 14px;
+                        border:1px solid #ddd;
+                        border-radius:8px;
+                    "
+                >
+
+
+                <!-- TO DATE -->
+
+                <input
+                    type="date"
+                    name="to_date"
+                    value="{{ to_date }}"
+                    style="
+                        padding:12px 14px;
+                        border:1px solid #ddd;
+                        border-radius:8px;
+                    "
+                >
+
+
+                <!-- APPLY -->
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+
+                    🔎 Apply
+
+                </button>
+
+
+                <!-- RESET -->
+
+                <a
+                    href="{{ url_for('reports') }}"
+                    class="primary-btn"
+                    style="
+                        text-decoration:none;
+                        display:inline-block;
+                    "
+                >
+
+                    ↻ Reset
+
+                </a>
+
+            </form>
+
+        </section>
+
+
+        <!-- ================= REPORT TABLE ================= -->
+
+        <section
+            class="card"
+            style="margin-top:20px;"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Student Attendance Report
+                    </h2>
+
+                    <p>
+                        MySQL attendance summary
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                style="
+                    overflow-x:auto;
+                    margin-top:20px;
+                "
+            >
+
+                <table
+                    style="
+                        width:100%;
+                        border-collapse:collapse;
+                    "
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th
+                                style="
+                                    text-align:left;
+                                    padding:14px;
+                                "
+                            >
+                                Student ID
+                            </th>
+
+
+                            <th
+                                style="
+                                    text-align:left;
+                                    padding:14px;
+                                "
+                            >
+                                Student Name
+                            </th>
+
+
+                            <th
+                                style="
+                                    text-align:center;
+                                    padding:14px;
+                                "
+                            >
+                                Present
+                            </th>
+
+
+                            <th
+                                style="
+                                    text-align:center;
+                                    padding:14px;
+                                "
+                            >
+                                Absent
+                            </th>
+
+
+                            <th
+                                style="
+                                    text-align:center;
+                                    padding:14px;
+                                "
+                            >
+                                Total
+                            </th>
+
+
+                            <th
+                                style="
+                                    text-align:center;
+                                    padding:14px;
+                                "
+                            >
+                                Attendance %
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for report in reports %}
+
+                        <tr>
+
+                            <td
+                                style="
+                                    padding:14px;
+                                "
+                            >
+
+                                {{ report.student_id }}
+
+                            </td>
+
+
+                            <td
+                                style="
+                                    padding:14px;
+                                    font-weight:600;
+                                "
+                            >
+
+                                {{ report.name }}
+
+                            </td>
+
+
+                            <td
+                                style="
+                                    padding:14px;
+                                    text-align:center;
+                                "
+                            >
+
+                                {{ report.present_count or 0 }}
+
+                            </td>
+
+
+                            <td
+                                style="
+                                    padding:14px;
+                                    text-align:center;
+                                "
+                            >
+
+                                {{ report.absent_count or 0 }}
+
+                            </td>
+
+
+                            <td
+                                style="
+                                    padding:14px;
+                                    text-align:center;
+                                "
+                            >
+
+                                {{ report.total_records or 0 }}
+
+                            </td>
+
+
+                            <td
+                                style="
+                                    padding:14px;
+                                    text-align:center;
+                                "
+                            >
+
+                                {% if report.total_records %}
+
+                                    <span
+                                        style="
+                                            display:inline-block;
+                                            padding:6px 12px;
+                                            border-radius:20px;
+                                            background:#dcfce7;
+                                            color:#166534;
+                                            font-weight:600;
+                                        "
+                                    >
+
+                                        {{ report.percentage }}%
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span
+                                        style="
+                                            display:inline-block;
+                                            padding:6px 12px;
+                                            border-radius:20px;
+                                            background:#f3f4f6;
+                                            color:#6b7280;
+                                            font-weight:600;
+                                        "
+                                    >
+
+                                        No Data
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+
+                    {% else %}
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                style="
+                                    text-align:center;
+                                    padding:50px;
+                                "
+                            >
+
+                                <div
+                                    style="
+                                        font-size:40px;
+                                    "
+                                >
+                                    📊
+                                </div>
+
+                                <h3>
+                                    No report data found
+                                </h3>
+
+                                <p>
+                                    Try changing your filters.
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

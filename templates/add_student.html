@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Student - FaceAttend</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">FA</div>
+
+            <div>
+                <h2>FaceAttend</h2>
+                <span>Attendance System</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-item">
+                <span>⌂</span>
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('students') }}" class="nav-item active">
+                <span>👤</span>
+                Students
+            </a>
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <p class="small-text">Student Management</p>
+                <h1>Add Student</h1>
+            </div>
+
+        </header>
+
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Add New Student</h2>
+                    <p>Enter student details</p>
+                </div>
+
+            </div>
+
+
+            <form method="POST">
+
+                <div style="margin-bottom:18px;">
+
+                    <label>Student ID</label>
+
+                    <input
+                        type="text"
+                        name="student_id"
+                        placeholder="Example: 052005"
+                        required
+                        style="width:100%; padding:12px; margin-top:8px;"
+                    >
+
+                </div>
+
+
+                <div style="margin-bottom:18px;">
+
+                    <label>Student Name</label>
+
+                    <input
+                        type="text"
+                        name="student_name"
+                        placeholder="Example: Rahul Kumar"
+                        required
+                        style="width:100%; padding:12px; margin-top:8px;"
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Add Student
+                </button>
+
+
+                <a
+                    href="{{ url_for('students') }}"
+                    class="view-all"
+                    style="margin-left:15px;"
+                >
+                    Cancel
+                </a>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>FaceAttend - Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="app">
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                FA
+            </div>
+
+            <div>
+                <h2>FaceAttend</h2>
+                <span>Attendance System</span>
+            </div>
+
+        </div>
+
+
+        <nav>
+
+            <a href="{{ url_for('dashboard') }}"
+               class="nav-item active">
+
+                <span>⌂</span>
+                Dashboard
+
+            </a>
+
+
+            <a href="{{ url_for('students') }}"
+               class="nav-item">
+
+                <span>👤</span>
+                Students
+
+            </a>
+
+
+            <a href="{{ url_for('attendance') }}"
+               class="nav-item">
+
+                <span>✓</span>
+                Attendance
+
+            </a>
+
+
+        <a href="{{ url_for('reports') }}" class="nav-item">
+    <span>▣</span>
+    Reports
+</a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a href="#"
+               class="nav-item">
+
+                <span>⚙</span>
+                Settings
+
+            </a>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- ================= TOP BAR ================= -->
+
+        <header class="topbar">
+
+            <div>
+
+                <p class="small-text">
+                    Welcome back
+                </p>
+
+                <h1>
+                    Dashboard
+                </h1>
+
+            </div>
+
+
+            <div class="profile">
+
+                <div class="avatar">
+                    A
+                </div>
+
+                <div>
+
+                    <strong>
+                        Admin
+                    </strong>
+
+                    <small>
+                        Administrator
+                    </small>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ================= STATS ================= -->
+
+        <section class="stats">
+
+
+            <!-- TOTAL STUDENTS -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    👥
+                </div>
+
+                <div>
+
+                    <p>
+                        Total Students
+                    </p>
+
+                    <h2>
+                        {{ total_students }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- PRESENT -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <p>
+                        Present Today
+                    </p>
+
+                    <h2>
+                        {{ present_today }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ABSENT -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    ○
+                </div>
+
+                <div>
+
+                    <p>
+                        Absent Today
+                    </p>
+
+                    <h2>
+                        {{ absent_today }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ATTENDANCE RATE -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    %
+                </div>
+
+                <div>
+
+                    <p>
+                        Attendance Rate
+                    </p>
+
+                    <h2>
+                        {{ attendance_rate }}%
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= MAIN CONTENT ================= -->
+
+        <section class="content-grid">
+
+
+            <!-- =========================================
+                 FACE RECOGNITION
+            ========================================== -->
+
+            <div class="card camera-card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Face Recognition
+                        </h2>
+
+                        <p>
+                            Live attendance monitoring
+                        </p>
+
+                    </div>
+
+
+                    <span class="live">
+                        ● READY
+                    </span>
+
+                </div>
+
+
+
+                <div class="camera">
+
+                    <div class="camera-placeholder">
+
+
+                        <div class="camera-icon">
+                            📷
+                        </div>
+
+
+                        <h3>
+                            Camera Ready
+                        </h3>
+
+
+                        <p>
+                            Start face recognition to mark attendance
+                        </p>
+
+
+                        <a
+                            href="{{ url_for('start_recognition') }}"
+                            class="primary-btn"
+                            onclick="
+                                this.innerText='Starting...';
+                                this.style.pointerEvents='none';
+                            "
+                        >
+
+                            ▶ Start Recognition
+
+                        </a>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- STATUS -->
+
+                <div
+                    style="
+                        display:flex;
+                        align-items:center;
+                        gap:10px;
+                        margin-top:15px;
+                        padding:12px 15px;
+                        border-radius:10px;
+                        background:#f7f8fa;
+                    "
+                >
+
+                    <span
+                        style="
+                            width:10px;
+                            height:10px;
+                            border-radius:50%;
+                            background:#22c55e;
+                            display:inline-block;
+                        "
+                    ></span>
+
+
+                    <span>
+
+                        Recognition system is ready
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =========================================
+                 RECENT ATTENDANCE
+            ========================================== -->
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Recent Attendance
+                        </h2>
+
+                        <p>
+                            Latest attendance records
+                        </p>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('attendance') }}"
+                        class="view-all"
+                    >
+
+                        View All
+
+                    </a>
+
+                </div>
+
+
+
+                {% if recent_attendance %}
+
+
+                    {% for record in recent_attendance %}
+
+
+                    <div class="attendance-item">
+
+
+                        <!-- AVATAR -->
+
+                        <div class="student-avatar">
+
+                            {{ record.name[0] | upper }}
+
+                        </div>
+
+
+
+                        <!-- STUDENT -->
+
+                        <div class="student-info">
+
+                            <strong>
+                                {{ record.name }}
+                            </strong>
+
+                            <span>
+                                ID: {{ record.student_id }}
+                            </span>
+
+                        </div>
+
+
+
+                        <!-- ATTENDANCE -->
+
+                        <div class="attendance-status">
+
+                            <strong>
+                                {{ record.status }}
+                            </strong>
+
+                            <span>
+
+                                {{ record.attendance_time }}
+
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+
+                    {% endfor %}
+
+
+                {% else %}
+
+
+                    <!-- NO RECORD -->
+
+                    <div
+                        class="attendance-item"
+                    >
+
+                        <div
+                            class="student-avatar"
+                        >
+
+                            —
+
+                        </div>
+
+
+                        <div
+                            class="student-info"
+                        >
+
+                            <strong>
+                                No attendance
+                            </strong>
+
+                            <span>
+                                No attendance records found.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                {% endif %}
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================================
+             TODAY SUMMARY
+        ========================================== -->
+
+        <section
+            class="card"
+            style="margin-top:20px;"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Today's Summary
+                    </h2>
+
+                    <p>
+                        Live attendance overview
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(3, 1fr);
+                    gap:15px;
+                    margin-top:20px;
+                "
+            >
+
+
+                <!-- PRESENT -->
+
+                <div
+                    style="
+                        padding:20px;
+                        border-radius:12px;
+                        background:#f7f8fa;
+                    "
+                >
+
+                    <p>
+                        Present
+                    </p>
+
+                    <h2>
+                        {{ present_today }}
+                    </h2>
+
+                </div>
+
+
+
+                <!-- ABSENT -->
+
+                <div
+                    style="
+                        padding:20px;
+                        border-radius:12px;
+                        background:#f7f8fa;
+                    "
+                >
+
+                    <p>
+                        Absent
+                    </p>
+
+                    <h2>
+                        {{ absent_today }}
+                    </h2>
+
+                </div>
+
+
+
+                <!-- TOTAL -->
+
+                <div
+                    style="
+                        padding:20px;
+                        border-radius:12px;
+                        background:#f7f8fa;
+                    "
+                >
+
+                    <p>
+                        Total Students
+                    </p>
+
+                    <h2>
+                        {{ total_students }}
+                    </h2>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+</body>
+
+</html>

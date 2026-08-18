@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        FaceAttend - Attendance
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for(
+            'static',
+            filename='css/style.css'
+        ) }}"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                FA
+            </div>
+
+            <div>
+
+                <h2>
+                    FaceAttend
+                </h2>
+
+                <span>
+                    Attendance System
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav>
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="nav-item"
+            >
+
+                <span>⌂</span>
+                Dashboard
+
+            </a>
+
+
+            <a
+                href="{{ url_for('students') }}"
+                class="nav-item"
+            >
+
+                <span>👤</span>
+                Students
+
+            </a>
+
+
+            <a
+                href="{{ url_for('attendance') }}"
+                class="nav-item active"
+            >
+
+                <span>✓</span>
+                Attendance
+
+            </a>
+
+
+           <a href="{{ url_for('reports') }}" class="nav-item">
+    <span>▣</span>
+    Reports
+</a>
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a
+                href="#"
+                class="nav-item"
+            >
+
+                <span>⚙</span>
+                Settings
+
+            </a>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- ================= TOPBAR ================= -->
+
+        <header class="topbar">
+
+            <div>
+
+                <p class="small-text">
+                    FaceAttend
+                </p>
+
+                <h1>
+                    Attendance
+                </h1>
+
+            </div>
+
+
+            <div class="profile">
+
+                <div class="avatar">
+                    A
+                </div>
+
+                <div>
+
+                    <strong>
+                        Admin
+                    </strong>
+
+                    <small>
+                        Administrator
+                    </small>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ================= SUMMARY ================= -->
+
+        <section class="stats">
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    📋
+                </div>
+
+                <div>
+
+                    <p>
+                        Total Records
+                    </p>
+
+                    <h2>
+                        {{ total_records }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <p>
+                        Present
+                    </p>
+
+                    <h2>
+                        {{ present_records }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    ○
+                </div>
+
+                <div>
+
+                    <p>
+                        Absent
+                    </p>
+
+                    <h2>
+                        {{ absent_records }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- ================= FILTERS ================= -->
+
+        <section
+            class="card"
+            style="margin-top:20px;"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Attendance Records
+                    </h2>
+
+                    <p>
+                        Search and filter attendance
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form
+                method="GET"
+                action="{{ url_for('attendance') }}"
+                style="
+                    display:flex;
+                    gap:12px;
+                    flex-wrap:wrap;
+                    margin-top:20px;
+                    align-items:center;
+                "
+            >
+
+
+                <!-- SEARCH -->
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search }}"
+                    placeholder="Search ID or student name"
+                    style="
+                        padding:12px 14px;
+                        border:1px solid #ddd;
+                        border-radius:8px;
+                        min-width:220px;
+                    "
+                >
+
+
+                <!-- DATE -->
+
+                <input
+                    type="date"
+                    name="date"
+                    value="{{ selected_date }}"
+                    style="
+                        padding:12px 14px;
+                        border:1px solid #ddd;
+                        border-radius:8px;
+                    "
+                >
+
+
+                <!-- STATUS -->
+
+                <select
+                    name="status"
+                    style="
+                        padding:12px 14px;
+                        border:1px solid #ddd;
+                        border-radius:8px;
+                    "
+                >
+
+                    <option
+                        value=""
+                        {% if not selected_status %}
+                        selected
+                        {% endif %}
+                    >
+                        All Status
+                    </option>
+
+
+                    <option
+                        value="Present"
+                        {% if selected_status == 'Present' %}
+                        selected
+                        {% endif %}
+                    >
+                        Present
+                    </option>
+
+
+                    <option
+                        value="Absent"
+                        {% if selected_status == 'Absent' %}
+                        selected
+                        {% endif %}
+                    >
+                        Absent
+                    </option>
+
+                </select>
+
+
+                <!-- FILTER -->
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+
+                    🔎 Filter
+
+                </button>
+
+
+                <!-- RESET -->
+
+                <a
+                    href="{{ url_for('attendance') }}"
+                    class="primary-btn"
+                    style="
+                        text-decoration:none;
+                        display:inline-block;
+                    "
+                >
+
+                    ↻ Reset
+
+                </a>
+
+            </form>
+
+        </section>
+
+
+
+        <!-- ================= TABLE ================= -->
+
+        <section
+            class="card"
+            style="margin-top:20px;"
+        >
+
+            <div
+                style="
+                    overflow-x:auto;
+                "
+            >
+
+                <table
+                    style="
+                        width:100%;
+                        border-collapse:collapse;
+                    "
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th
+                                style="
+                                    text-align:left;
+                                    padding:14px;
+                                "
+                            >
+                                Student ID
+                            </th>
+
+
+                            <th
+                                style="
+                                    text-align:left;
+                                    padding:14px;
+                                "
+                            >
+                                Student Name
+                            </th>
+
+
+                            <th
+                                style="
+                                    text-align:left;
+                                    padding:14px;
+                                "
+                            >
+                                Date
+                            </th>
+
+
+                            <th
+                                style="
+                                    text-align:left;
+                                    padding:14px;
+                                "
+                            >
+                                Time
+                            </th>
+
+
+                            <th
+                                style="
+                                    text-align:left;
+                                    padding:14px;
+                                "
+                            >
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                    {% for record in attendance %}
+
+
+                        <tr>
+
+
+                            <!-- ID -->
+
+                            <td
+                                style="
+                                    padding:14px;
+                                "
+                            >
+
+                                {{ record.student_id }}
+
+                            </td>
+
+
+                            <!-- NAME -->
+
+                            <td
+                                style="
+                                    padding:14px;
+                                    font-weight:600;
+                                "
+                            >
+
+                                {{ record.name }}
+
+                            </td>
+
+
+                            <!-- DATE -->
+
+                            <td
+                                style="
+                                    padding:14px;
+                                "
+                            >
+
+                                {{ record.attendance_date }}
+
+                            </td>
+
+
+                            <!-- TIME -->
+
+                            <td
+                                style="
+                                    padding:14px;
+                                "
+                            >
+
+                                {{ record.attendance_time }}
+
+                            </td>
+
+
+                            <!-- STATUS -->
+
+                            <td
+                                style="
+                                    padding:14px;
+                                "
+                            >
+
+
+                                {% if record.status == 'Present' %}
+
+                                    <span
+                                        style="
+                                            display:inline-block;
+                                            padding:6px 12px;
+                                            border-radius:20px;
+                                            background:#dcfce7;
+                                            color:#166534;
+                                            font-weight:600;
+                                        "
+                                    >
+
+                                        ✓ Present
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span
+                                        style="
+                                            display:inline-block;
+                                            padding:6px 12px;
+                                            border-radius:20px;
+                                            background:#fee2e2;
+                                            color:#991b1b;
+                                            font-weight:600;
+                                        "
+                                    >
+
+                                        {{ record.status }}
+
+                                    </span>
+
+                                {% endif %}
+
+
+                            </td>
+
+
+                        </tr>
+
+
+                    {% else %}
+
+
+                        <!-- EMPTY -->
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                style="
+                                    text-align:center;
+                                    padding:50px;
+                                "
+                            >
+
+                                <div
+                                    style="
+                                        font-size:40px;
+                                    "
+                                >
+                                    📋
+                                </div>
+
+
+                                <h3>
+                                    No attendance found
+                                </h3>
+
+
+                                <p>
+                                    Try changing your filters.
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+
+                    {% endfor %}
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+</body>
+
+</html>

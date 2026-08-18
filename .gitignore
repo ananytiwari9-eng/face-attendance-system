@@ -1,0 +1,11 @@
+.env
+venv/
+__pycache__/
+*.pyc
+
+dataset/
+trainer.yml
+names.json
+
+.vscode/
+.idea/
