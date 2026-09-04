@@ -8,8 +8,59 @@ import sys
 import os
 import csv
 import io
+import json
 
 app = Flask(__name__)
+
+# ==========================================
+# SETTINGS
+# ==========================================
+
+SETTINGS_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "settings.json"
+)
+
+
+def load_settings():
+
+    try:
+
+        with open(
+            SETTINGS_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            return json.load(file)
+
+    except Exception as error:
+
+        print(
+            "Settings Load Error:",
+            error
+        )
+
+        return {
+            "camera_index": 0,
+            "recognition_threshold": 50,
+            "duplicate_protection": True
+        }
+
+
+def save_settings(settings):
+
+    with open(
+        SETTINGS_FILE,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        json.dump(
+            settings,
+            file,
+            indent=4
+        )
 
 
 # ==========================================
@@ -26,13 +77,14 @@ DB_NAME = os.getenv("DB_NAME")
 # ==========================================
 
 def get_db_connection():
+
     return mysql.connector.connect(
         host=DB_HOST,
+        port=3306,
         user=DB_USER,
         password=DB_PASSWORD,
         database=DB_NAME
     )
-
 
 # ==========================================
 # DASHBOARD
@@ -762,7 +814,95 @@ def reports():
             except:
                 pass
 
+# ==========================================
+# SETTINGS PAGE
+# ==========================================
+# ==========================================
+# SETTINGS PAGE
+# ==========================================
 
+@app.route("/settings")
+def settings():
+
+    current_settings = load_settings()
+
+    return render_template(
+        "settings.html",
+        settings=current_settings
+    )
+# ==========================================
+# SAVE SETTINGS
+# ==========================================
+
+@app.route("/settings/save", methods=["POST"])
+def save_settings():
+
+    try:
+
+        camera_index = int(
+            request.form.get(
+                "camera_index",
+                0
+            )
+        )
+
+        recognition_threshold = int(
+            request.form.get(
+                "recognition_threshold",
+                50
+            )
+        )
+
+        duplicate_protection = (
+            request.form.get(
+                "duplicate_protection"
+            ) == "on"
+        )
+
+        # Validation
+
+        if camera_index < 0:
+            camera_index = 0
+
+        if recognition_threshold < 1:
+            recognition_threshold = 1
+
+        if recognition_threshold > 200:
+            recognition_threshold = 200
+
+        settings_data = {
+
+            "camera_index": camera_index,
+
+            "recognition_threshold":
+                recognition_threshold,
+
+            "duplicate_protection":
+                duplicate_protection
+
+        }
+
+        save_settings(settings_data)
+
+        print(
+            "Settings saved successfully! ✅"
+        )
+
+        return redirect(
+            url_for("settings")
+        )
+
+    except Exception as error:
+
+        print(
+            "Settings Save Error:",
+            error
+        )
+
+        return f"""
+        <h2>Settings Error</h2>
+        <p>{error}</p>
+        """
 # ==========================================
 # EXPORT REPORT CSV
 # ==========================================

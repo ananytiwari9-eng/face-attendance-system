@@ -1,32 +1,45 @@
-import cv2
+import os
 import json
+import cv2
 import mysql.connector
+
+from dotenv import load_dotenv
 from datetime import datetime
 from collections import deque, Counter
+
+
+# ==========================================
+# LOAD ENVIRONMENT
+# ==========================================
+
+load_dotenv()
 
 
 # ==========================================
 # MYSQL SETTINGS
 # ==========================================
 
-DB_HOST = "localhost"
-DB_USER = "root"
-DB_PASSWORD = "Prince@1234"
-DB_NAME = "face_attendance"
+DB_HOST = os.getenv("DB_HOST")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME")
 
 
 # ==========================================
 # RECOGNITION SETTINGS
 # ==========================================
 
-# Lower LBPH confidence = better match
-CONFIDENCE_THRESHOLD = 70
+# LBPH:
+# Lower confidence/distance = better match.
+#
+# 50 is stricter than the previous 70.
+CONFIDENCE_THRESHOLD = 50
 
-# Same prediction kitne frames tak confirm karna hai
-CONFIRMATION_FRAMES = 5
+# Kitne consecutive frames ka history rakhna hai
+CONFIRMATION_FRAMES = 7
 
-# 5 frames me minimum kitne same hone chahiye
-MIN_CONFIRMATIONS = 4
+# 7 frames me minimum 6 same predictions chahiye
+MIN_CONFIRMATIONS = 6
 
 
 # ==========================================
@@ -78,9 +91,10 @@ except Exception as error:
 # ==========================================
 
 face_detector = cv2.CascadeClassifier(
-    cv2.data.haarcascades +
-    "haarcascade_frontalface_default.xml"
+    cv2.data.haarcascades
+    + "haarcascade_frontalface_default.xml"
 )
+
 
 if face_detector.empty():
 
@@ -97,6 +111,7 @@ try:
 
     connection = mysql.connector.connect(
         host=DB_HOST,
+        port=3306,
         user=DB_USER,
         password=DB_PASSWORD,
         database=DB_NAME
@@ -118,17 +133,25 @@ except mysql.connector.Error as error:
 # ATTENDANCE FUNCTION
 # ==========================================
 
-def mark_attendance(student_id, student_name):
+def mark_attendance(
+    student_id,
+    student_name
+):
 
     today = datetime.now().date()
 
-    # Check whether attendance already exists today
+
+    # --------------------------------------
+    # CHECK DUPLICATE
+    # --------------------------------------
+
     check_query = """
         SELECT id
         FROM attendance
         WHERE student_id = %s
         AND attendance_date = %s
     """
+
 
     cursor.execute(
         check_query,
@@ -138,9 +161,10 @@ def mark_attendance(student_id, student_name):
         )
     )
 
+
     result = cursor.fetchone()
 
-    # Already marked
+
     if result:
 
         print(
@@ -150,10 +174,18 @@ def mark_attendance(student_id, student_name):
 
         return False
 
-    # Current time
+
+    # --------------------------------------
+    # CURRENT TIME
+    # --------------------------------------
+
     current_time = datetime.now().time()
 
-    # Insert attendance
+
+    # --------------------------------------
+    # INSERT ATTENDANCE
+    # --------------------------------------
+
     insert_query = """
         INSERT INTO attendance
         (
@@ -173,6 +205,7 @@ def mark_attendance(student_id, student_name):
         )
     """
 
+
     values = (
         student_id,
         student_name,
@@ -181,12 +214,15 @@ def mark_attendance(student_id, student_name):
         "Present"
     )
 
+
     cursor.execute(
         insert_query,
         values
     )
 
+
     connection.commit()
+
 
     print("\n================================")
     print(" Attendance marked! ✅")
@@ -198,6 +234,7 @@ def mark_attendance(student_id, student_name):
     print("Time:", current_time)
 
     print("================================\n")
+
 
     return True
 
@@ -211,6 +248,7 @@ camera = cv2.VideoCapture(
     cv2.CAP_DSHOW
 )
 
+
 if not camera.isOpened():
 
     print("Camera open nahi ho raha!")
@@ -221,7 +259,10 @@ if not camera.isOpened():
     exit()
 
 
-# Camera resolution
+# ==========================================
+# CAMERA RESOLUTION
+# ==========================================
+
 camera.set(
     cv2.CAP_PROP_FRAME_WIDTH,
     640
@@ -231,6 +272,7 @@ camera.set(
     cv2.CAP_PROP_FRAME_HEIGHT,
     480
 )
+
 
 print("Camera successfully connected! ✅")
 
@@ -244,8 +286,6 @@ prediction_history = deque(
 )
 
 
-last_confirmed_label = None
-
 attendance_marked_labels = set()
 
 
@@ -258,11 +298,12 @@ print(" FACE ATTENDANCE SYSTEM")
 print("================================")
 
 print("Camera started...")
-print("Q dabakar exit karo.")
+print("Q dabakar band karo.")
 
 print(
     f"Confirmation: "
-    f"{MIN_CONFIRMATIONS}/{CONFIRMATION_FRAMES} frames"
+    f"{MIN_CONFIRMATIONS}/"
+    f"{CONFIRMATION_FRAMES} frames"
 )
 
 print(
@@ -277,11 +318,13 @@ print(
 
 while True:
 
-    # --------------------------------------
+
+    # ======================================
     # READ CAMERA
-    # --------------------------------------
+    # ======================================
 
     ret, frame = camera.read()
+
 
     if not ret or frame is None:
 
@@ -292,9 +335,9 @@ while True:
         continue
 
 
-    # --------------------------------------
+    # ======================================
     # GRAYSCALE
-    # --------------------------------------
+    # ======================================
 
     gray = cv2.cvtColor(
         frame,
@@ -302,27 +345,25 @@ while True:
     )
 
 
-    # --------------------------------------
-    # DETECT FACES
-    # --------------------------------------
+    # ======================================
+    # FACE DETECTION
+    # ======================================
 
     faces = face_detector.detectMultiScale(
         gray,
         scaleFactor=1.1,
-        minNeighbors=5,
+        minNeighbors=6,
         minSize=(100, 100)
     )
 
 
-    # --------------------------------------
+    # ======================================
     # NO FACE
-    # --------------------------------------
+    # ======================================
 
     if len(faces) == 0:
 
         prediction_history.clear()
-
-        last_confirmed_label = None
 
         cv2.putText(
             frame,
@@ -341,9 +382,14 @@ while True:
 
     for (x, y, w, h) in faces:
 
+
+        # ----------------------------------
+        # FACE CROP
+        # ----------------------------------
+
         face = gray[
-            y:y+h,
-            x:x+w
+            y:y + h,
+            x:x + w
         ]
 
 
@@ -367,30 +413,36 @@ while True:
             continue
 
 
+        # ----------------------------------
+        # FIND STUDENT
+        # ----------------------------------
+
         student = names.get(
             str(label)
         )
 
 
-        # ----------------------------------
-        # ACCEPT ONLY GOOD MATCH
-        # ----------------------------------
+        # ==================================
+        # STRICT MATCH
+        # ==================================
 
         if (
             student is not None
-            and confidence < CONFIDENCE_THRESHOLD
+            and confidence <= CONFIDENCE_THRESHOLD
         ):
 
             current_label = str(label)
+
 
             prediction_history.append(
                 current_label
             )
 
+
             print(
-                "Prediction:",
+                "Possible match:",
                 student["name"],
-                "| Confidence:",
+                "| Distance:",
                 round(confidence, 2)
             )
 
@@ -401,30 +453,40 @@ while True:
                 "unknown"
             )
 
+
             print(
-                "Prediction: Unknown",
-                "| Confidence:",
+                "Unknown face",
+                "| Distance:",
                 round(confidence, 2)
             )
 
 
         # ==================================
-        # CHECK 5-FRAME CONFIRMATION
+        # CHECK CONFIRMATION
         # ==================================
 
         confirmed_label = None
 
 
-        if len(prediction_history) >= CONFIRMATION_FRAMES:
+        if (
+            len(prediction_history)
+            >= CONFIRMATION_FRAMES
+        ):
+
 
             valid_predictions = [
+
                 item
+
                 for item in prediction_history
+
                 if item != "unknown"
+
             ]
 
 
             if valid_predictions:
+
 
                 counter = Counter(
                     valid_predictions
@@ -436,11 +498,25 @@ while True:
                 )
 
 
+                # ----------------------------------
+                # STRICT CONFIRMATION
+                # ----------------------------------
+
                 if count >= MIN_CONFIRMATIONS:
 
-                    confirmed_label = (
-                        most_common_label
+                    # Make sure unknown frames
+                    # are not dominating the history
+
+                    unknown_count = prediction_history.count(
+                        "unknown"
                     )
+
+
+                    if unknown_count <= 1:
+
+                        confirmed_label = (
+                            most_common_label
+                        )
 
 
         # ==================================
@@ -449,6 +525,7 @@ while True:
 
         if confirmed_label is not None:
 
+
             confirmed_student = names.get(
                 confirmed_label
             )
@@ -456,53 +533,58 @@ while True:
 
             if confirmed_student is not None:
 
-                student_id = confirmed_student["id"]
 
-                student_name = confirmed_student["name"]
-
-
-                last_confirmed_label = (
-                    confirmed_label
+                student_id = (
+                    confirmed_student["id"]
                 )
 
 
-                # ------------------------------
-                # MARK ATTENDANCE ONLY ONCE
-                # ------------------------------
+                student_name = (
+                    confirmed_student["name"]
+                )
 
-                if confirmed_label not in attendance_marked_labels:
+
+                # ----------------------------------
+                # MARK ATTENDANCE ONLY ONCE
+                # ----------------------------------
+
+                if (
+                    confirmed_label
+                    not in attendance_marked_labels
+                ):
 
                     mark_attendance(
                         student_id,
                         student_name
                     )
 
+
                     attendance_marked_labels.add(
                         confirmed_label
                     )
 
 
-                # ------------------------------
+                # ----------------------------------
                 # GREEN BOX
-                # ------------------------------
+                # ----------------------------------
 
                 cv2.rectangle(
                     frame,
                     (x, y),
-                    (x+w, y+h),
+                    (x + w, y + h),
                     (0, 255, 0),
                     2
                 )
 
 
-                # ------------------------------
+                # ----------------------------------
                 # NAME
-                # ------------------------------
+                # ----------------------------------
 
                 cv2.putText(
                     frame,
                     student_name,
-                    (x, y-35),
+                    (x, y - 35),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.7,
                     (0, 255, 0),
@@ -510,14 +592,14 @@ while True:
                 )
 
 
-                # ------------------------------
+                # ----------------------------------
                 # ID
-                # ------------------------------
+                # ----------------------------------
 
                 cv2.putText(
                     frame,
                     f"ID: {student_id}",
-                    (x, y-10),
+                    (x, y - 10),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.6,
                     (0, 255, 0),
@@ -525,14 +607,14 @@ while True:
                 )
 
 
-                # ------------------------------
+                # ----------------------------------
                 # CONFIRMED
-                # ------------------------------
+                # ----------------------------------
 
                 cv2.putText(
                     frame,
                     "CONFIRMED",
-                    (x, y+h+25),
+                    (x, y + h + 25),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.6,
                     (0, 255, 0),
@@ -541,15 +623,16 @@ while True:
 
 
         # ==================================
-        # NOT CONFIRMED
+        # UNKNOWN / NOT CONFIRMED
         # ==================================
 
         else:
 
+
             cv2.rectangle(
                 frame,
                 (x, y),
-                (x+w, y+h),
+                (x + w, y + h),
                 (0, 0, 255),
                 2
             )
@@ -557,13 +640,20 @@ while True:
 
             cv2.putText(
                 frame,
-                "Checking...",
-                (x, y-10),
+                "UNKNOWN",
+                (x, y - 10),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.7,
                 (0, 0, 255),
                 2
             )
+
+
+        # ----------------------------------
+        # PROCESS FIRST FACE ONLY
+        # ----------------------------------
+
+        break
 
 
     # ======================================
@@ -581,6 +671,7 @@ while True:
     # ======================================
 
     key = cv2.waitKey(1) & 0xFF
+
 
     if key == ord("q"):
 

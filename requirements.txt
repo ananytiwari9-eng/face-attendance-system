@@ -1,0 +1,4 @@
+Flask
+mysql-connector-python
+opencv-contrib-python
+python-dotenv

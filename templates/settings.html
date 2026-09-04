@@ -1,0 +1,426 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>FaceAttend - Settings</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                FA
+            </div>
+
+            <div>
+
+                <h2>FaceAttend</h2>
+
+                <span>
+                    Attendance System
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav>
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="nav-item"
+            >
+                <span>⌂</span>
+                Dashboard
+            </a>
+
+
+            <a
+                href="{{ url_for('students') }}"
+                class="nav-item"
+            >
+                <span>👤</span>
+                Students
+            </a>
+
+
+            <a
+                href="{{ url_for('attendance') }}"
+                class="nav-item"
+            >
+                <span>✓</span>
+                Attendance
+            </a>
+
+
+            <a
+                href="{{ url_for('reports') }}"
+                class="nav-item"
+            >
+                <span>▣</span>
+                Reports
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a
+                href="{{ url_for('settings') }}"
+                class="nav-item active"
+            >
+                <span>⚙</span>
+                Settings
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <p class="small-text">
+                    FaceAttend
+                </p>
+
+                <h1>
+                    Settings
+                </h1>
+
+            </div>
+
+
+            <div class="profile">
+
+                <div class="avatar">
+                    A
+                </div>
+
+                <div>
+
+                    <strong>
+                        Admin
+                    </strong>
+
+                    <small>
+                        Administrator
+                    </small>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= SETTINGS CARD ================= -->
+
+        <section
+            class="card"
+            style="margin-top:20px;"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Recognition Settings
+                    </h2>
+
+                    <p>
+                        Configure face recognition and attendance behavior
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form
+                method="POST"
+                action="{{ url_for('save_settings') }}"
+                style="margin-top:20px;"
+            >
+
+
+                <!-- CAMERA INDEX -->
+
+                <div
+                    style="
+                        padding:20px 0;
+                        border-bottom:1px solid #eee;
+                    "
+                >
+
+                    <label
+                        for="camera_index"
+                        style="
+                            display:block;
+                            font-weight:600;
+                            margin-bottom:8px;
+                        "
+                    >
+                        Camera Index
+                    </label>
+
+                    <p
+                        style="
+                            margin:0 0 12px 0;
+                            color:#666;
+                        "
+                    >
+                        Default webcam ke liye 0 use karo.
+                        Agar second camera hai to 1 try kar sakte ho.
+                    </p>
+
+                    <input
+                        id="camera_index"
+                        type="number"
+                        name="camera_index"
+                        min="0"
+                        value="{{ settings.camera_index }}"
+                        required
+                        style="
+                            padding:12px;
+                            border:1px solid #ddd;
+                            border-radius:8px;
+                            width:150px;
+                        "
+                    >
+
+                </div>
+
+
+                <!-- RECOGNITION THRESHOLD -->
+
+                <div
+                    style="
+                        padding:20px 0;
+                        border-bottom:1px solid #eee;
+                    "
+                >
+
+                    <label
+                        for="recognition_threshold"
+                        style="
+                            display:block;
+                            font-weight:600;
+                            margin-bottom:8px;
+                        "
+                    >
+                        Recognition Threshold
+                    </label>
+
+                    <p
+                        style="
+                            margin:0 0 12px 0;
+                            color:#666;
+                        "
+                    >
+                        Recognition system ka confidence threshold.
+                        Is value ko badalne se recognition behavior change ho sakta hai.
+                    </p>
+
+                    <input
+                        id="recognition_threshold"
+                        type="number"
+                        name="recognition_threshold"
+                        min="1"
+                        max="200"
+                        value="{{ settings.recognition_threshold }}"
+                        required
+                        style="
+                            padding:12px;
+                            border:1px solid #ddd;
+                            border-radius:8px;
+                            width:150px;
+                        "
+                    >
+
+                </div>
+
+
+                <!-- DUPLICATE PROTECTION -->
+
+                <div
+                    style="
+                        padding:20px 0;
+                        border-bottom:1px solid #eee;
+                    "
+                >
+
+                    <label
+                        style="
+                            display:flex;
+                            align-items:center;
+                            gap:10px;
+                            font-weight:600;
+                            cursor:pointer;
+                        "
+                    >
+
+                        <input
+                            type="checkbox"
+                            name="duplicate_protection"
+                            {% if settings.duplicate_protection %}
+                                checked
+                            {% endif %}
+                        >
+
+                        Duplicate Attendance Protection
+
+                    </label>
+
+                    <p
+                        style="
+                            margin:8px 0 0 28px;
+                            color:#666;
+                        "
+                    >
+                        Same student ki same day attendance ko
+                        repeatedly mark hone se prevent karne ke liye.
+                    </p>
+
+                </div>
+
+
+                <!-- SAVE BUTTON -->
+
+                <div
+                    style="
+                        padding-top:20px;
+                        display:flex;
+                        gap:12px;
+                        align-items:center;
+                    "
+                >
+
+                    <button
+                        type="submit"
+                        class="primary-btn"
+                    >
+                        💾 Save Settings
+                    </button>
+
+
+                    <a
+                        href="{{ url_for('dashboard') }}"
+                        class="primary-btn"
+                        style="
+                            text-decoration:none;
+                            display:inline-block;
+                        "
+                    >
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- ================= SYSTEM INFO ================= -->
+
+        <section
+            class="card"
+            style="margin-top:20px;"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Current Configuration
+                    </h2>
+
+                    <p>
+                        Values currently loaded by Flask
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div style="margin-top:20px;">
+
+                <p>
+                    <strong>
+                        Camera:
+                    </strong>
+
+                    {{ settings.camera_index }}
+                </p>
+
+
+                <p>
+                    <strong>
+                        Recognition Threshold:
+                    </strong>
+
+                    {{ settings.recognition_threshold }}
+                </p>
+
+
+                <p>
+                    <strong>
+                        Duplicate Protection:
+                    </strong>
+
+                    {% if settings.duplicate_protection %}
+                        Enabled
+                    {% else %}
+                        Disabled
+                    {% endif %}
+                </p>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
+```
