@@ -24,7 +24,7 @@ A face recognition based attendance management system built using:
 
 Clone the repository:
 
-git clone https://github.com/YOUR_USERNAME/face-attendance-system.git
+git clone https://github.com/ananytiwari9-eng/face-attendance-system.git
 
 Enter project folder:
 
